@@ -10,7 +10,7 @@ import Welcome from './components/Welcome'
 import Signup from './components/auth/Signup'
 
 const app = (
-  <Provider store={createStore(reducers, {})}>
+  <Provider store={createStore(reducers, {}, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())}>
   <BrowserRouter>
     <App>
       <Route exact path="/" component={Welcome}/>

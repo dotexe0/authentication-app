@@ -4,11 +4,42 @@ const User = require('../models/user')
 
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
+const LocalStrategy = require('passport-local').Strategy
 
-// set up options for jwt Strat
-const jwtOptions = {}
+// create local strategy for login (not signup)
+const localOptions = { usernameField: 'email' }
+const localLogin = new LocalStrategy(localOptions, (email, password, done) => {
+  // verify usr / pw, call done with user
+  User.findOne({ email }, (err, user) => {
+    if (err) {
+      return done(err)
+    }
+    
+    if (!user) {
+      return done(null, false)
+    }
+    
+    // compare passwords - is pw equal to user.pw ?
+    user.comparePassword(password, (err, isMatch) => {
+      if (err) {
+        return done(err)
+      }
+      if (!isMatch) {
+        return done(null, false)
+      }
+      
+      return done(null, user)
+    })
+  })
+})
 
-// create JWT strat
+// set up options for jwt Strategy
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromHeader('authorization'),
+  secretOrKey: config.secret
+}
+
+// create JWT strategy
 // payload is the jwt token (i.e. will hae obj with sub and iat properties)
 const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
   /// see if user Id in the payload exists in our db
@@ -28,4 +59,6 @@ const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
     }
   })
 })
-// tell passport to use this strat
+// tell passport to use this strategy
+passport.use(jwtLogin)
+passport.use(localLogin)

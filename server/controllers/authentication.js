@@ -10,6 +10,7 @@ function tokenForUser(user) {
   return jwt.encode({ sub: user._id, iat: timestamp }, config.secret)
 }
 exports.signup = async function(req, res, next) {
+
   const { email, password } = req.body
   if (!email || !password) {
     return res.status(422).send({ error: 'You must provide an email and a password' })
@@ -29,4 +30,9 @@ exports.signup = async function(req, res, next) {
       return next(err)
     }
     res.json({ token: tokenForUser(newUser) })
+}
+
+exports.signin = async function(req, res, next) {
+  // user has already had their email/pw auth'd, just need to give them a token
+  res.send({ token: tokenForUser(req.user) })
 }

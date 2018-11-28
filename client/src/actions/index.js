@@ -13,3 +13,20 @@ export const signup = (formProps, callback) => async dispatch => {
     dispatch({ type: AUTH_ERROR, payload: 'Email in use' })
   }
 }
+
+export const signin = (formProps, callback) => async dispatch => {
+  try {
+    const response = await axios.post('http://localhost:3090/signin', formProps)
+    dispatch({type: AUTH_USER, payload: response.data.token})
+    localStorage.setItem('token', response.data.token)
+    callback()
+  } catch(err) {
+    dispatch({ type: AUTH_ERROR, payload: 'No email found with that password' })
+
+  }
+}
+
+export const signout = () => {
+  localStorage.removeItem('token')
+  return { type: AUTH_USER, payload: '' }
+}
